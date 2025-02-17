@@ -1,0 +1,74 @@
+plugins {
+    id 'java'
+    id 'application'
+}
+
+group = 'com.amadeus'
+version = '1.0'
+
+
+
+
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+
+    implementation 'dev.langchain4j:langchain4j:0.36.2'
+    implementation 'dev.langchain4j:langchain4j-core:0.36.2'
+    implementation 'dev.langchain4j:langchain4j-ollama:0.36.2'
+
+    implementation 'com.fasterxml.jackson.core:jackson-core:2.18.2'
+    implementation 'com.fasterxml.jackson.core:jackson-databind:2.18.2'
+
+    implementation 'io.projectreactor:reactor-core:3.5.8'
+    implementation 'com.knuddels:jtokkit:1.0.0'
+    implementation 'com.google.code.gson:gson:2.11.0'
+
+    implementation 'org.slf4j:slf4j-api:2.0.16'
+
+}
+
+
+def main_class_name = 'translator.Translator'
+
+
+application {
+    mainClass = main_class_name
+    //applicationDefaultJvmArgs = ["-Xms50G","-Xmx50G"]
+}
+// this is required to make System.in block waiting for user to type input
+run{
+    standardInput = System.in
+    classpath = sourceSets.main.runtimeClasspath
+
+//    jvmArgs += [
+//            '--module-path', configurations.runtimeClasspath.asPath,
+//            '--add-modules', 'langchain4j,langchain4j.core,langchain4j.azure.open.ai,langchain4j.ollama,javafx.controls,javafx.base,com.azure.core,com.azure.ai.openai,com.fasterxml.jackson.databind,com.google.gson,java.desktop,com.google.gson,org.slf4j'
+//    ]
+
+    doFirst {
+        //println "Module path: " + configurations.runtimeClasspath.asPath
+        //println "Running command: java ${jvmArgs.join(' ')} -m ${application.mainModule}/${application.mainClass}\n\n\n"
+        //println "Classpath: " + sourceSets.main.runtimeClasspath.asPath
+        //println "Running command: java -cp ${sourceSets.main.runtimeClasspath.asPath} ${application.mainClass}\n\n\n"
+    }
+}
+
+
+
+//tasks.withType(JavaCompile) {
+//    options.compilerArgs += [
+//            '--module-path', configurations.compileClasspath.asPath,
+//            '--add-modules', 'langchain4j,langchain4j.core,langchain4j.azure.open.ai,langchain4j.ollama,javafx.controls,javafx.base,com.azure.core,com.azure.ai.openai,com.fasterxml.jackson.databind,com.google.gson,java.desktop,com.google.gson,org.slf4j'
+//    ]
+//}
+/*
+task printClasspath {
+    doLast {
+        println configurations.runtimeClasspath.asPath
+    }
+}
+*/

@@ -1,0 +1,13 @@
+.gradle
+.idea
+*.com
+*.class
+
+*.dmg
+*.gz
+*.jar
+*.tar
+*.zip
+
+
+.DS_Store

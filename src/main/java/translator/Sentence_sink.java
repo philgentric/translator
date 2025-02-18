@@ -1,6 +1,7 @@
 package translator;
 
 import java.io.File;
+import java.util.List;
 import java.util.Properties;
 
 //**********************************************************
@@ -16,6 +17,9 @@ public class Sentence_sink
     {
         this.file_out = file;
         the_properties = new Properties();
+
+        Sentence_source.load(the_properties, file_out,false);
+
     }
     //**********************************************************
     public void add(String key, String value)
@@ -37,5 +41,13 @@ public class Sentence_sink
         {
             return false;
         }
+
+    }
+
+    //**********************************************************
+    public String get(String key)
+    //**********************************************************
+    {
+        return the_properties.getProperty(key);
     }
 }

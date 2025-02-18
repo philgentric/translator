@@ -13,6 +13,10 @@ creating one new resource bundle file per language.
 At this stage it uses ollama only, but leveraging langchain4j
 you should be able to use many other LLMs ...
 
+Note that it works in incremental mode so you can kill it and restart another day
+which is super useful since when executing the LLM on a small machine
+the process may be quite slow.
+
 
 
 

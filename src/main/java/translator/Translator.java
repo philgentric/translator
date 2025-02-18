@@ -45,8 +45,8 @@ public class Translator
 
         List<Locale> locales = new ArrayList<>();
 
-        //register(Locale.of("de", "DE"), locales);
-        //register(Locale.of("it", "IT"), locales);
+        register(Locale.of("de", "DE"), locales);
+        register(Locale.of("it", "IT"), locales);
         register(Locale.of("zh", "CN"), locales);
         register(Locale.of("es", "ES"), locales);
         register(Locale.of("pt", "PT"), locales);
@@ -79,60 +79,62 @@ public class Translator
     {
         Sentence_source sentence_source = new Sentence_source(new File("../klik/src/main/resources/klik/MessagesBundle_en_US.properties"));
 
-        String name = locale.getDisplayName();
+        String target_language_name = locale.getDisplayName();
         String filename = "MessagesBundle_"+locale.getLanguage()+"_"+locale.getCountry()+".properties";
 
-        System.out.println("\n\n\ntranslating "+name+" "+filename);
+        System.out.println("\n\n\ntranslating into: "+target_language_name+", the target properties file name is: "+filename);
 
 
-        Sentence_sink sink = new Sentence_sink(new File("../klik/src/main/resources/klik/"+filename));
+        Sentence_sink sentence_sink = new Sentence_sink(new File("../klik/src/main/resources/klik/"+filename));
 
         for(;;)
         {
             Pair kv = sentence_source.get_sentence();
             if ( kv == null) break;
-            String prompt = "Please translate in "+name+" the following item, knowing that it is part of " +
+
+            String translated = sentence_sink.get(kv.key());
+            if( translated != null)
+            {
+                System.out.println("Skipping key ->"+kv.key()+"<- original ->"+kv.value()+"<- is already translated as: ->"+translated+"<-");
+                continue;
+            }
+
+
+            String prompt = "You are a smart assistant, a translator with a strong expertise in User Interfaces. " +
+                    "Please translate in "+target_language_name+" the following item, knowing that it is part of " +
                     "the user interface of a software application (for example, the text of a menu item) " +
                     "which is a file browser with a strong focus on images. " +
-                    "Please format your output as JSON with 3 items: " +
+                    "It is imperative that you format your output as JSON with 3 items: " +
                     "1. 'input' to repeat the input string" +
                     "2. 'translation' with the translation" +
-                    "3. and 'explanations' with your comments, if any, exclusively in english.\n" +
-            "Example    :"+
-                    "User: ->Delete<-"+
-                    "Assistant:" +
+                    "3. 'explanation' with your comments, if any, exclusively in english.\n" +
+                    "###### begin example (english to italian) ######\n" +
                     "{" +
-                    "  \"input\": \"Delete\","+
-                    "  \"translation\": \"Elimina\"," +
-                    "  \"explanation\": \"...bla bla bla...\"}" +
-                    "Thank you. The item to translate is ->"+kv.value()+"<-";
+                    "  \"input\": \"Delete\",\n"+
+                    "  \"translation\": \"Elimina\",\n" +
+                    "  \"explanation\": \"Elimina is the proper translation of delete in italian\"\n}\n" +
+                    "###### end example ######\n" +
+                    "User: The item to translate is ->"+kv.value()+"<-\n";
 
             String answer = model.generate(prompt);
             System.out.println("\n\n"+prompt+ " ==> " +answer+"\n\n");
 
-            String preprocessed_answer = answer;
-            String explanation = null;
-            String THINK_END = "</think>";
-            int kk = answer.indexOf(THINK_END);
-            if ( kk > 0)
-            {
-                System.out.println("kk="+kk);
-                preprocessed_answer = answer.substring(kk+THINK_END.length());
-                explanation = answer.substring(0,kk);
-            }
+            answer = remove_think(answer);
+            answer = remove_triple_backtick(answer);
+
+
             ObjectMapper objectMapper = new ObjectMapper();
             try {
-                JsonNode jsonNode = objectMapper.readTree(preprocessed_answer);
+                JsonNode jsonNode = objectMapper.readTree(answer);
                 String translation = String.valueOf(jsonNode.get("translation"));
-                String explanation2 = String.valueOf(jsonNode.get("explanation"));
+                String explanation = String.valueOf(jsonNode.get("explanation"));
                 if ( translation != null)
                 {
                     translation = translation.replaceAll("\"","");
                     System.out.println("->"+kv.value()+ "<- becomes ->"+translation+"<-");
-                    sink.add(kv.key(),translation);
-                    sink.save();
+                    sentence_sink.add(kv.key(),translation);
+                    sentence_sink.save();
                 }
-                if ( explanation2 != null) explanation = explanation2;
                 System.out.println("\nExplanation: "+explanation+"\n\n");
 
 
@@ -142,5 +144,34 @@ public class Translator
 
         }
 
+    }
+
+    private static String remove_think(String answer)
+    {
+        String THINK_END = "</think>";
+        int kk = answer.indexOf(THINK_END);
+        if ( kk > 0)
+        {
+            //System.out.println("index of think section is="+kk);
+            System.out.println("Removed this <think> section:"+answer.substring(0,kk));
+            return answer.substring(kk+THINK_END.length());
+        }
+        System.out.println("No <think> section found");
+        return answer;
+    }
+    private static String remove_triple_backtick(String answer)
+    {
+        answer = answer.replaceAll("```","");
+
+        String JSON = "json";
+        int kk = answer.indexOf(JSON);
+        if ( kk >= 0)
+        {
+            System.out.println("index of json="+kk);
+            return answer.substring(kk+JSON.length());
+        }
+        System.out.println("no 'json' keyword");
+
+        return answer;
     }
 }

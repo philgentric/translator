@@ -3,6 +3,7 @@ package translator;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 import java.util.Set;
@@ -20,18 +21,29 @@ public class Sentence_source
     //**********************************************************
     {
         props = new Properties();
+        keys = load(props, in, true);
+    }
+
+    //**********************************************************
+    public static List<String> load(Properties props, File in, boolean no_file_is_fatal)
+    //**********************************************************
+    {
         try
         {
             props.load(new FileInputStream(in));
             Set<String> keyset = props.stringPropertyNames();
-            keys = List.copyOf(keyset);
-
+            return List.copyOf(keyset);
         }
         catch (IOException e)
         {
-            throw new RuntimeException(e);
+            if ( no_file_is_fatal)
+            {
+                System.out.println("PANIC: "+e);
+                return null;
+            }
+            System.out.println("WARNING: "+e);
+            return new ArrayList<>();
         }
-
     }
 
     //**********************************************************

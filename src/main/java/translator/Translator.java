@@ -35,16 +35,24 @@ public class Translator
     ga	Irish
     br	Breton
 
+
      */
+
+
     //**********************************************************
     public static void main(String[] args)
     //**********************************************************
     {
+        // change here to set were are your resources files:
+        String ressources_path = "../klik/src/main/resources/klik/";
+
 
         //https://www.oracle.com/java/technologies/javase/jdk8-jre8-suported-locales.html
 
         List<Locale> locales = new ArrayList<>();
 
+        // add/remove languages here:
+        register(Locale.of("fr", "FR"), locales);
         register(Locale.of("de", "DE"), locales);
         register(Locale.of("it", "IT"), locales);
         register(Locale.of("zh", "CN"), locales);
@@ -52,12 +60,13 @@ public class Translator
         register(Locale.of("pt", "PT"), locales);
         register(Locale.of("ja", "JP"), locales);
         register(Locale.of("ko", "KR"), locales);
+        register(Locale.of("br", "FR"), locales);
 
         ChatLanguageModel model = Ollama.get_model("deepseek-r1:70b");
 
         for (Locale locale : locales)
         {
-            translate_to(locale,model);
+            translate_to(ressources_path,locale,model);
         }
 
 
@@ -74,19 +83,17 @@ public class Translator
     }
 
     //**********************************************************
-    private static void translate_to(Locale locale, ChatLanguageModel model)
+    private static void translate_to(String ressources_path, Locale locale, ChatLanguageModel model)
     //**********************************************************
     {
-        Sentence_source sentence_source = new Sentence_source(new File("../klik/src/main/resources/klik/MessagesBundle_en_US.properties"));
+        Sentence_source sentence_source = new Sentence_source(new File(ressources_path +"MessagesBundle_en_US.properties"));
 
         String target_language_name = locale.getDisplayName();
         String filename = "MessagesBundle_"+locale.getLanguage()+"_"+locale.getCountry()+".properties";
 
         System.out.println("\n\n\ntranslating into: "+target_language_name+", the target properties file name is: "+filename);
 
-
-        Sentence_sink sentence_sink = new Sentence_sink(new File("../klik/src/main/resources/klik/"+filename));
-
+        Sentence_sink sentence_sink = new Sentence_sink(new File(ressources_path +filename));
         for(;;)
         {
             Pair kv = sentence_source.get_sentence();
@@ -116,6 +123,7 @@ public class Translator
                     "###### end example ######\n" +
                     "User: The item to translate is ->"+kv.value()+"<-\n";
 
+            System.out.println("\n\ncalling LLM for ->"+kv.value()+"<- in "+target_language_name);
             String answer = model.generate(prompt);
             System.out.println("\n\n"+prompt+ " ==> " +answer+"\n\n");
 

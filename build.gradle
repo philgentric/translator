@@ -3,11 +3,8 @@ plugins {
     id 'application'
 }
 
-group = 'com.amadeus'
+group = 'klik'
 version = '1.0'
-
-
-
 
 
 repositories {
@@ -34,41 +31,12 @@ dependencies {
 
 def main_class_name = 'translator.Translator'
 
-
 application {
     mainClass = main_class_name
-    //applicationDefaultJvmArgs = ["-Xms50G","-Xmx50G"]
 }
 // this is required to make System.in block waiting for user to type input
 run{
     standardInput = System.in
     classpath = sourceSets.main.runtimeClasspath
-
-//    jvmArgs += [
-//            '--module-path', configurations.runtimeClasspath.asPath,
-//            '--add-modules', 'langchain4j,langchain4j.core,langchain4j.azure.open.ai,langchain4j.ollama,javafx.controls,javafx.base,com.azure.core,com.azure.ai.openai,com.fasterxml.jackson.databind,com.google.gson,java.desktop,com.google.gson,org.slf4j'
-//    ]
-
-    doFirst {
-        //println "Module path: " + configurations.runtimeClasspath.asPath
-        //println "Running command: java ${jvmArgs.join(' ')} -m ${application.mainModule}/${application.mainClass}\n\n\n"
-        //println "Classpath: " + sourceSets.main.runtimeClasspath.asPath
-        //println "Running command: java -cp ${sourceSets.main.runtimeClasspath.asPath} ${application.mainClass}\n\n\n"
-    }
 }
 
-
-
-//tasks.withType(JavaCompile) {
-//    options.compilerArgs += [
-//            '--module-path', configurations.compileClasspath.asPath,
-//            '--add-modules', 'langchain4j,langchain4j.core,langchain4j.azure.open.ai,langchain4j.ollama,javafx.controls,javafx.base,com.azure.core,com.azure.ai.openai,com.fasterxml.jackson.databind,com.google.gson,java.desktop,com.google.gson,org.slf4j'
-//    ]
-//}
-/*
-task printClasspath {
-    doLast {
-        println configurations.runtimeClasspath.asPath
-    }
-}
-*/
